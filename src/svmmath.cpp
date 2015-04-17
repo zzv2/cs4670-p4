@@ -59,7 +59,45 @@ SVMPoint BestFitIntersect(const std::list<SVMLine> &lines, int imgWidth, int img
     // This minimum eigenvector of A^T A is also the same as the minimum singular vector of A.
 
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    int rowCount = 0;
+
+    for (iter = lines.begin(); iter != lines.end(); iter++) {
+        // ...iter is the pointer to the current line...
+
+        // specify each line's endpoints e1 and e2 in homogeneous coordinates
+        // e1 = (x1_i , y1_i, w)
+        // e2 = (x2_i , y2_i, w)
+        Vec3d e1 = Vec3d(iter->pnt1->u,iter->pnt1->v,1);
+        Vec3d e2 = Vec3d(iter->pnt2->u,iter->pnt2->v,1);
+
+        // compute a homogenous coordinate vector representing the line
+        // as the cross product of its two endpoints
+        // (a_i,b_i,c_i) = e1  X  e2 (there is a built in cross product available in vec.h)
+        // note that this resulting vector is just the parameters of
+        // the equation a_i x + b_i y + c_i = 0 of the 2D infinite line
+        // passing through the two endpoints
+        Vec3d l = cross(e1,e2);
+
+
+        // arrange all of the lines into a nx3 matrix:
+        A.row(rowCount) << l[0], l[1], l[2];
+
+        rowCount++;
+    }
+
+    cout << "A^t * A =" << endl << A.transpose() * A << endl;
+
+    double *evec;
+    double eval;
+    Eigen::MinEig(A.transpose() * A, eval, evec);
+
+    // the singular vector associated with the smallest singular value
+    // is the best-fit vanishing point vector V (evec)
+    evec[0] /= evec[2];
+    evec[1] /= evec[2];
+
+    bestfit = SVMPoint(evec[0],evec[1]);
+
     //TODO-BLOCK-END
     /******** END TODO ********/
 	
