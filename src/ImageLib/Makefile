@@ -4,7 +4,7 @@ IMAGELIB=libImage.a
 IMAGELIB_OBJS=Transform.o WarpImage.o FileIO.o Image.o RefCntMem.o
 
 CC=g++
-CPPFLAGS=-Wall -O0
+CPPFLAGS=-w -O0
 
 all: $(IMAGELIB)
 

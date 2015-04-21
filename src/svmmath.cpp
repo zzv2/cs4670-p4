@@ -85,21 +85,9 @@ SVMPoint BestFitIntersect(const std::list<SVMLine> &lines, int imgWidth, int img
         rowCount++;
     }
 
-
-    double evec[3];
-    double eval;
-
-    Matrix3 ata = A.transpose() * A;
-    cout << "A^t * A =" << endl << ata << endl;
-
-    MinEig(ata, eval, evec);
-
-    // the singular vector associated with the smallest singular value
-    // is the best-fit vanishing point vector V (evec)
-    evec[0] /= evec[2];
-    evec[1] /= evec[2];
-
-    bestfit = SVMPoint(evec[0],evec[1]);
+    double eval, evec[3];
+    minEig(A, eval, evec); 
+    bestfit = SVMPoint(evec[0]/evec[2], evec[1]/evec[2]);
 
     //TODO-BLOCK-END
     /******** END TODO ********/
@@ -124,7 +112,39 @@ void ConvertToPlaneCoordinate(const vector<SVMPoint>& points, vector<Vec3d>& bas
 
     /******** BEGIN TODO ********/
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    Vec3d p = Vec3d(points[0].X, points[0].Y, points[0].Z);
+    Vec3d q = Vec3d(points[1].X, points[1].Y, points[1].Z);
+    Vec3d r = Vec3d(points[2].X, points[2].Y, points[2].Z);
+
+    Vec3d ex = (p - r);
+    ex.normalize();
+
+    Vec3d s = ((q - r) * ex) * ex;
+    Vec3d ey = (q - r) - s;
+    ey.normalize();
+
+    double umin, umax, vmin, vmax;
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        Vec3d origPt = Vec3d(points[i].X, points[i].Y, points[i].Z);
+        Vec3d pt = Vec3d((origPt - r) * ex, (origPt - r) * ey, 1);
+        basisPts.push_back(pt);
+
+        umin = min(umin, pt[0]);
+        umax = max(umax, pt[0]);
+        vmin = min(vmin, pt[1]);
+        vmax = max(vmax, pt[1]);
+    }
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        basisPts[i][0] = (basisPts[i][0] - umin)/(umax - umin);
+        basisPts[i][1] = (basisPts[i][1] - umin)/(umax - umin);
+    }
+
+    uScale = 1/(umax - umin);
+    vScale = 1/(vmax - vmin);
     //TODO-BLOCK-END
     /******** END TODO ********/
 }
@@ -174,7 +194,14 @@ void ComputeHomography(CTransform3x3 &H, CTransform3x3 &Hinv, const vector<SVMPo
     /******** BEGIN TODO ********/
     /* Fill in the A matrix for the call to MinEig */
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    for (int i = 0; i < numPoints; i++)
+    {
+        SVMPoint origPt = points[i];
+        Vec3d basisPt = basisPts[i];
+
+        A.row(2*i) << basisPt[0], basisPt[1], basisPt[2], 0, 0, 0, -origPt.u * basisPt[0], -origPt.u * basisPt[1], -origPt.u * basisPt[2];
+        A.row(2*i) << 0, 0, 0, basisPt[0], basisPt[1], basisPt[2], -origPt.v * basisPt[0], -origPt.v * basisPt[1], -origPt.v * basisPt[2];
+    }
     //TODO-BLOCK-END
 
     double eval, h[9];

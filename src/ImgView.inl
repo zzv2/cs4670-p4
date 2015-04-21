@@ -48,7 +48,41 @@ void ImgView::sameXY()
 
 
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+	// todo - sign?
+	// todo - degenerative case?
+
+	Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
+	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
+	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
+
+    double bu, bv;
+    ApplyHomography(bu, bv, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
+    Vec3d b = Vec3d(bu, bv, 1.0);
+    Vec3d r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0);
+
+	Vec3d b0 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
+	Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
+
+    Vec3d v = cross(cross(b, b0), cross(vx, vy));
+    v[0] = v[0]/v[2];
+    v[1] = v[1]/v[2];
+    v[2] = 1.0;
+
+    Vec3d t = cross(cross(v, t0), cross(r, b));
+    t[0] = t[0]/t[2];
+    t[1] = t[1]/t[2];
+    t[2] = 1.0;
+
+    Vec3d t_b = t - b;
+    Vec3d vz_r = vz - r;
+    Vec3d r_b = r - b;
+    Vec3d vz_t = vz - t;
+    double cross_ratio = t_b.length() * vz_r.length()/(r_b.length() * vz_t.length());
+
+    double height = cross_ratio * referenceHeight;
+    newPoint.X = knownPoint.X;
+    newPoint.Y = knownPoint.Y;
+    newPoint.Z = knownPoint.Z + height;
     //TODO-BLOCK-END
 	/******** END TODO ********/
 
@@ -89,7 +123,52 @@ void ImgView::sameZPlane()
 
 	/******** BEGIN TODO ********/
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    if (knownPoint.Z == 0)
+    {
+    	double X, Y;
+    	ApplyHomography(X, Y, Hinv, newPoint.u, newPoint.v, 1.0);
+    	newPoint.X = X;
+    	newPoint.Y = Y;
+    	newPoint.Z = 0.0;
+    }
+     else
+    {
+    	// Get the vanishing points
+    	Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
+    	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
+    	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
+
+    	// Get t1 in image coords
+    	Vec3d t1 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
+
+    	// Get m0 in image coords
+    	Vec3d m0 = Vec3d(newPoint.u, newPoint.v, 1.0);
+
+    	// Find b1 from t1
+    	double _u, _v;
+    	ApplyHomography(_u, _v, H, knownPoint.X, knownPoint.Y, 1.0);
+    	Vec3d b1 = Vec3d(_u, _v, 1.0);
+
+    	// Find v
+    	Vec3d v = cross(cross(t1, m0), cross(vx, vy));
+    	v[0] = v[0]/v[2];
+    	v[1] = v[0]/v[2];
+    	v[2] = 1.0;
+
+    	// Find b0
+    	Vec3d b0 = cross(cross(m0, vz), cross(b1, v));
+    	b0[0] = b0[0]/b0[2];
+    	b0[1] = b0[1]/b0[2];
+    	b0[2] = 1.0;
+
+    	// Finally find the new point's 3d coords
+    	double x, y;
+    	ApplyHomography(x, y, Hinv, b0[0], b0[1], b0[2]);
+    	newPoint.X = x;
+    	newPoint.Y = y;
+    	newPoint.Z = knownPoint.Z;
+
+    }
     //TODO-BLOCK-END
 	/******** END TODO ********/
 
