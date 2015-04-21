@@ -26,7 +26,27 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     // Store the results in variables 'u1, v1' and 'u3, v3'
 
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+
+    // Get the vanishing points in homogenous image coordinates
+    Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
+    Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
+    Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
+
+    // Get the image coords for the known corners
+    Vec3d p0 = Vec3d(u0, v0, 1.0);
+    Vec3d p2 = Vec3d(u2, v2, 1.0);
+
+    // Get the intersection of [p0, vz] and [p2, vy], which is p3
+    Vec3d p3 = cross(cross(p0, vz), cross(p2, vy));
+
+    // Get the intersection of [p0, vy] and [p2, vz], which is p1
+    Vec3d p1 = cross(cross(p0, vy), cross(p2, vz));
+    
+    // Set the output variables
+    u1 = p1[0]/p1[2];
+    v1 = p1[1]/p1[2];
+    u3 = p3[0]/p3[2];
+    v3 = p3[0]/p3[2];
     //TODO-BLOCK-END
     /********* END TODO ********/
 }
