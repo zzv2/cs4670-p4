@@ -85,11 +85,14 @@ SVMPoint BestFitIntersect(const std::list<SVMLine> &lines, int imgWidth, int img
         rowCount++;
     }
 
-    cout << "A^t * A =" << endl << A.transpose() * A << endl;
 
-    double *evec;
+    double evec[3];
     double eval;
-    Eigen::MinEig(A.transpose() * A, eval, evec);
+
+    Matrix3 ata = A.transpose() * A;
+    cout << "A^t * A =" << endl << ata << endl;
+
+    MinEig(ata, eval, evec);
 
     // the singular vector associated with the smallest singular value
     // is the best-fit vanishing point vector V (evec)
