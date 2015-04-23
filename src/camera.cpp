@@ -47,49 +47,46 @@ void ImgView::computeCameraParameters()
     // TODO COMMENT THIS ******************************************
 
     Vec3d horizon = cross(xV, yV);
-    Vec3d refLine = cross(zV, r);
-    Vec3d nPoint = cross(horizon, refLine);
-    nPoint /= nPoint[2];
-    SVMPoint *nP = new SVMPoint(nPoint[0], nPoint[1]);
+    Vec3d l_reference = cross(zV, r);
+    Vec3d newP = cross(horizon, l_reference);
+    newP /= newP[2];
+    SVMPoint *np = new SVMPoint(newP[0], newP[1]);
     
     pntSelStack.push_back(refPointOffPlane);
-    pntSelStack.push_back(nP);
-    printf("pntSelStack.size before samexy: %d\n", pntSelStack.size());
+    pntSelStack.push_back(np);
     sameXY();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
-    printf("pntSelStack.size after samexy: %d\n", pntSelStack.size());
 
     // apply homography
-    double r_x, r_y;
+    double r_x, r_y; //r projected onto ground plane
     ApplyHomography(r_x, r_y, H, refPointOffPlane->X, refPointOffPlane->Y, 0.0);
-    
-    for (int i = 0; i < 3; i++) {
-        //printf("H: : %e, %e, %e \n" , H[i][0], H[i][1], H[i][2]);
-        gr[i] = (H[i][0]/H[2][2]) * refPointOffPlane->X + (H[i][1]/H[2][2]) * refPointOffPlane->Y + (H[i][2]/H[2][2]); //making this ground z =0?!?
-    }
-    Vec3d gr = Vec3d(); //projection of r onto the ground plane
+
+    Vec3d gr = Vec3d(r_x,r_y,1.0); 
     gr /= gr[2]; //image coordinates of r's projection onto the ground
 
-    SVMPoint *r_proj = new SVMPoint(gr[0], gr[1]);
-    r_proj->X = refPointOffPlane->X;
-    r_proj->Y = refPointOffPlane->Y;
-    r_proj->Z = 0;
-    (*r_proj).known(true);
+    SVMPoint *rproj = new SVMPoint(gr[0], gr[1]);
 
-    SVMPoint *vz = new SVMPoint(vanZ[0], vanZ[1]);
+    rproj->X = refPointOffPlane->X;
+    rproj->Y = refPointOffPlane->Y;
+    
+    rproj->Z = 0;
 
-    pntSelStack.push_back(r_proj); //knownPoint
-    pntSelStack.push_back(vz); //newPoint
-    printf("pntSelStack.size before samez: %d\n", pntSelStack.size());
+    (*rproj).known(true);
+
+    SVMPoint *vz = new SVMPoint(zV[0], zV[1]);
+
+    // known point
+    pntSelStack.push_back(rproj);
+    // new point
+    pntSelStack.push_back(vz);
     sameZPlane();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
-    printf("pntSelStack.size after samez: %d\n", pntSelStack.size());
 
     x_cam = (*vz).X;
     y_cam = (*vz).Y;
-    z_cam = (*nP).Z;
+    z_cam = (*np).Z;
 
 
     //TODO-BLOCK-END
