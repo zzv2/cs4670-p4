@@ -86,8 +86,7 @@ SVMPoint BestFitIntersect(const std::list<SVMLine> &lines, int imgWidth, int img
     }
 
     double eval, evec[3];
-    Matrix3 ata = A.transpose() * A;
-    MinEig(ata, eval, evec);
+    MinEig(A, eval, evec);
     bestfit = SVMPoint(evec[0]/evec[2], evec[1]/evec[2]);
 
     //TODO-BLOCK-END

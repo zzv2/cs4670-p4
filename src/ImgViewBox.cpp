@@ -23,7 +23,7 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     /******** BEGIN TODO ********/ 
     // Given the 2D positions of corners p0 and p2 of the face, compute the 2D positions of p1 and p3
     // Remember that this face is on a plane perpendicular to the plane x=0
-    // Store the results in variables 'u1, v1' and 'u3, v3'
+    // Store the results in variabsolveForOppositeCornersles 'u1, v1' and 'u3, v3'
 
     //TODO-BLOCK-BEGIN
 
@@ -32,21 +32,21 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
     Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
 
-    // Get the image coords for the known corners
+    // Get the image coords for thsolveForOppositeCornerse known corners
     Vec3d p0 = Vec3d(u0, v0, 1.0);
     Vec3d p2 = Vec3d(u2, v2, 1.0);
 
     // Get the intersection of [p0, vz] and [p2, vy], which is p3
-    Vec3d p3 = cross(cross(p0, vz), cross(p2, vy));
+    Vec3d p3 = cross(cross(p0, vz), cross(p2, vx));
 
     // Get the intersection of [p0, vy] and [p2, vz], which is p1
-    Vec3d p1 = cross(cross(p0, vy), cross(p2, vz));
+    Vec3d p1 = cross(cross(p0, vx), cross(p2, vz));
     
     // Set the output variables
     u1 = p1[0]/p1[2];
     v1 = p1[1]/p1[2];
     u3 = p3[0]/p3[2];
-    v3 = p3[0]/p3[2];
+    v3 = p3[1]/p3[2];
     //TODO-BLOCK-END
     /********* END TODO ********/
 }
