@@ -127,7 +127,56 @@ void ImgView::find3DPositionsBox(SVMPoint *points[8])
 	// pntSelStack.  There are multiple ways to implement this function.
 
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    
+    // point 1
+    pntSelStack.push_back(points[0]);
+    pntSelStack.push_back(points[1]);
+    sameZPlane();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 2
+    pntSelStack.push_back(points[1]);
+    pntSelStack.push_back(points[2]);
+    sameXY();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 3
+    pntSelStack.push_back(points[0]);
+    pntSelStack.push_back(points[3]);
+    sameXY();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 4
+    pntSelStack.push_back(points[0]);
+    pntSelStack.push_back(points[4]);
+    sameZPlane();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 5
+    pntSelStack.push_back(points[4]);
+    pntSelStack.push_back(points[5]);
+    sameZPlane();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 6
+    pntSelStack.push_back(points[5]);
+    pntSelStack.push_back(points[6]);
+    sameXY();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+    
+    // point 7
+    pntSelStack.push_back(points[0]);
+    pntSelStack.push_back(points[1]);
+    sameXY();
+    pntSelStack.pop_back();
+    pntSelStack.pop_back();
+
     //TODO-BLOCK-END
 
 	/********* END TODO ********/
