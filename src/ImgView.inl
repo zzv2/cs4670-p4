@@ -60,9 +60,14 @@ void ImgView::sameXY()
 	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
 	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
 
+    // Compute the image coords of the point below the reference point on the plane
+    // This works because H takes (X,Y) on the plane (so Z = 0)
+    // whereas the real refPointOffPlane has Z != 0
     double bu, bv;
     ApplyHomography(bu, bv, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
     Vec3d b = Vec3d(bu, bv, 1.0);
+
+    // The actual reference point's image coords
     Vec3d r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0);
 
 	Vec3d b0 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
@@ -78,12 +83,7 @@ void ImgView::sameXY()
     t[1] = t[1]/t[2];
     t[2] = 1.0;
 
-    Vec3d t_b = t - b;
-    Vec3d vz_r = vz - r;
-    Vec3d r_b = r - b;
-    Vec3d vz_t = vz - t;
-    double cross_ratio = t_b.length() * vz_r.length()/(r_b.length() * vz_t.length());
-
+    double cross_ratio = (t - b).length * (vz - r).length()/((r - b).length() * (vz - t).length());
     double height = cross_ratio * referenceHeight;
     newPoint.X = knownPoint.X;
     newPoint.Y = knownPoint.Y;
@@ -156,9 +156,6 @@ void ImgView::sameZPlane()
 
     	// Find v
     	Vec3d v = cross(cross(t1, m0), cross(vx, vy));
-    	v[0] = v[0]/v[2];
-    	v[1] = v[0]/v[2];
-    	v[2] = 1.0;
 
     	// Find b0
     	Vec3d b0 = cross(cross(m0, vz), cross(b1, v));
