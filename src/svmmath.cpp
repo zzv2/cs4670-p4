@@ -201,7 +201,7 @@ void ComputeHomography(CTransform3x3 &H, CTransform3x3 &Hinv, const vector<SVMPo
         Vec3d basisPt = basisPts[i];
 
         A.row(2*i) << basisPt[0], basisPt[1], basisPt[2], 0, 0, 0, -origPt.u * basisPt[0], -origPt.u * basisPt[1], -origPt.u * basisPt[2];
-        A.row(2*i) << 0, 0, 0, basisPt[0], basisPt[1], basisPt[2], -origPt.v * basisPt[0], -origPt.v * basisPt[1], -origPt.v * basisPt[2];
+        A.row(2*i+1) << 0, 0, 0, basisPt[0], basisPt[1], basisPt[2], -origPt.v * basisPt[0], -origPt.v * basisPt[1], -origPt.v * basisPt[2];
     }
     //TODO-BLOCK-END
 
