@@ -51,6 +51,11 @@ void ImgView::sameXY()
 	// todo - sign?
 	// todo - degenerative case?
 
+    // degenerate case slide 15 lec 19
+    // t = t_0
+    // you know v_z
+    // compute b with homography
+
 	Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
 	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
 	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
