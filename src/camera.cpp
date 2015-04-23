@@ -47,10 +47,10 @@ void ImgView::computeCameraParameters()
     Vec3d horizon = cross(xV, yV);
     Vec3d newP = cross(horizon, l_reference);
     newP /= newP[2];
-    SVMPoint *np = new SVMPoint(newP[0], newP[1]);
+    SVMPoint np = SVMPoint(newP[0], newP[1]);
     
     pntSelStack.push_back(refPointOffPlane);
-    pntSelStack.push_back(np);
+    pntSelStack.push_back(&np);
     sameXY();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
@@ -59,30 +59,27 @@ void ImgView::computeCameraParameters()
     double r_x, r_y; //r projected onto ground plane
     ApplyHomography(r_x, r_y, H, refPointOffPlane->X, refPointOffPlane->Y, 0.0);
 
-    SVMPoint *rproj = new SVMPoint(r_x, r_y);
+    SVMPoint rproj = SVMPoint(r_x, r_y);
 
-    rproj->X = refPointOffPlane->X;
-    rproj->Y = refPointOffPlane->Y;
-    
-    rproj->Z = 0;
+    rproj.X = refPointOffPlane->X;
+    rproj.Y = refPointOffPlane->Y;
+    rproj.Z = 0;
 
-    (*rproj).known(true);
+    rproj.known(true);
 
-    SVMPoint *zv = new SVMPoint(zV[0], zV[1]);
+    SVMPoint zv = SVMPoint(zV[0], zV[1]);
 
     // known point
-    pntSelStack.push_back(rproj);
+    pntSelStack.push_back(&rproj);
     // new point
-    pntSelStack.push_back(zv);
+    pntSelStack.push_back(&zv);
     sameZPlane();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
 
-    x_cam = (*zv).X;
-    y_cam = (*zv).Y;
-    z_cam = (*np).Z;
-
-
+    x_cam = zv.X;
+    y_cam = zv.Y;
+    z_cam = np.Z;
     //TODO-BLOCK-END
 
     /******** END TODO Part 1 ********/

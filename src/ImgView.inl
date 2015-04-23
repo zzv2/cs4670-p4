@@ -56,9 +56,9 @@ void ImgView::sameXY()
     // you know v_z
     // compute b with homography
 
-	Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
-	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
-	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
+	Vec3d xV = Vec3d(xVanish.u, xVanish.v, 1.0);
+	Vec3d yV = Vec3d(yVanish.u, yVanish.v, 1.0);
+	Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
 
     // Compute the image coords of the point below the reference point on the plane
     // This works because H takes (X,Y) on the plane (so Z = 0)
@@ -73,21 +73,26 @@ void ImgView::sameXY()
 	Vec3d b0 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
 	Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
 
-    Vec3d v = cross(cross(b, b0), cross(vx, vy));
-    v[0] = v[0]/v[2];
-    v[1] = v[1]/v[2];
-    v[2] = 1.0;
+    int inversionFactor = 1;
+    if ((b0-b).length() > (t0-b).length())
+    {
+        Vec3d tmp = b0;
+        b0 = t0;
+        t0 = tmp;
+        inversionFactor = -1;
+    }
 
+    Vec3d v = cross(cross(b, b0), cross(xV, yV));
     Vec3d t = cross(cross(v, t0), cross(r, b));
-    t[0] = t[0]/t[2];
-    t[1] = t[1]/t[2];
-    t[2] = 1.0;
 
-    double cross_ratio = (t - b).length * (vz - r).length()/((r - b).length() * (vz - t).length());
+    v /= v[2];
+    t /= t[2];
+
+    double cross_ratio = (t - b).length() * (zV - r).length()/((r - b).length() * (zV - t).length());
     double height = cross_ratio * referenceHeight;
     newPoint.X = knownPoint.X;
     newPoint.Y = knownPoint.Y;
-    newPoint.Z = knownPoint.Z + height;
+    newPoint.Z = knownPoint.Z + height * inversionFactor/** ((b0[0] < t[0] ? 1 : -1))*/;
     //TODO-BLOCK-END
 	/******** END TODO ********/
 
@@ -139,9 +144,9 @@ void ImgView::sameZPlane()
      else
     {
     	// Get the vanishing points
-    	Vec3d vx = Vec3d(xVanish.u, xVanish.v, 1.0);
-    	Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
-    	Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
+    	Vec3d xV = Vec3d(xVanish.u, xVanish.v, 1.0);
+    	Vec3d yV = Vec3d(yVanish.u, yVanish.v, 1.0);
+    	Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
 
     	// Get t1 in image coords
     	Vec3d t1 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
@@ -155,13 +160,11 @@ void ImgView::sameZPlane()
     	Vec3d b1 = Vec3d(_u, _v, 1.0);
 
     	// Find v
-    	Vec3d v = cross(cross(t1, m0), cross(vx, vy));
+    	Vec3d v = cross(cross(t1, m0), cross(xV, yV));
 
     	// Find b0
-    	Vec3d b0 = cross(cross(m0, vz), cross(b1, v));
-    	b0[0] = b0[0]/b0[2];
-    	b0[1] = b0[1]/b0[2];
-    	b0[2] = 1.0;
+    	Vec3d b0 = cross(cross(m0, zV), cross(b1, v));
+        b0 /= b0[2];
 
     	// Finally find the new point's 3d coords
     	double x, y;

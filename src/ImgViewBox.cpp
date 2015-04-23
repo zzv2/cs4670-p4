@@ -36,47 +36,17 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     Vec3d p0 = Vec3d(u0, v0, 1.0);
     Vec3d p2 = Vec3d(u2, v2, 1.0);
 
-    // Line [p0, vz]
-    Vec3d l1 = cross(p0, vz);
-    l1[0] /= l1[2];
-    l1[1] /= l1[2];
-    l1[2] = 0.0;
+    // Get the intersection of [p0, vz] and [p2, vx], which is p3
+    Vec3d p3 = cross(cross(p0, vz), cross(p2, vx));
 
-    // Line [p2, vx]
-    Vec3d l2 = cross(p2, vx);
-    l2[0] /= l2[2];
-    l2[1] /= l2[2];
-    l2[2] = 0.0;
-
-    // Line [p0, vx]
-    Vec3d l3 = cross(p0, vx);
-    l3[0] /= l3[2];
-    l3[1] /= l3[2];
-    l3[2] = 0.0;
-
-    // Line [p2, vz]
-    Vec3d l4 = cross(p2, vz);
-    l4[0] /= l4[2];
-    l4[1] /= l4[2];
-    l4[2] = 0.0;
-
-    // Find p3
-    Vec3d p3 = cross(l1, l2);
-    p3[0] /= p3[2];
-    p3[2] /= p3[2];
-    p3[3] = 0.0;
-
-    // Find p1
-    Vec3d p1 = cross(l3, l4);
-    p1[0] /= p1[2];
-    p1[1] /= p1[2];
-    p1[2] = 0.0;
+    // Get the intersection of [p0, vx] and [p2, vz], which is p1
+    Vec3d p1 = cross(cross(p0, vx), cross(p2, vz));
 
     // Set the output variables
-    u1 = p1[0];
-    v1 = p1[1];
-    u3 = p3[0];
-    v3 = p3[1];
+    u1 = p1[0]/p1[2];
+    v1 = p1[1]/p1[2];
+    u3 = p3[0]/p3[2];
+    v3 = p3[1]/p3[2];
     //TODO-BLOCK-END
     /********* END TODO ********/
 }
@@ -120,59 +90,36 @@ void ImgView::solveForOppositeFace(SVMSweep *sweep, double imgX, double imgY,
     Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
 
     Vec3d lm = cross(pMouse,xV);
-    lm[0] /= lm[2];
-    lm[1] /= lm[2];
-    lm[2] = 0.0;
 
     Vec3d l1 = cross(p0, yV);
-    l1[0] /= l1[2];
-    l1[1] /= l1[2];
-    l1[2] = 0.0;
-
     p4 = cross(l1,lm);
-    p4[0] /= p4[2];
-    p4[1] /= p4[2];
-    p4[2] = 0.0;
 
     Vec3d l2 = cross(p1,yV);
-    l2[0] /= l2[2];
-    l2[1] /= l2[2];
-    l2[2] = 0.0;
-
     p5 = cross(l2,lm);
-    p5[0] /= p5[2];
-    p5[1] /= p5[2];
-    p5[0] = 0.0;
 
     Vec3d l3 = cross(p3,yV);
-    l3[0] /= l3[2];
-    l3[1] /= l3[2];
-    l3[2] = 0.0;
-
     Vec3d l4 = cross(p4,zV);
-    l4[0] /= l4[2];
-    l4[1] /= l4[2];
-    l4[2] = 0.0;
-
     p7 = cross(l3,l4);
-    p7[0] /= p7[2];
-    p7[1] /= p7[2];
-    p7[2] = 0.0;
 
     Vec3d l5 = cross(p2,yV);
-    l5[0] /= l5[2];
-    l5[1] /= l5[2];
-    l5[2] = 0.0;
-
     Vec3d l6 = cross(p5,zV);
-    l6[0] /= l6[2];
-    l6[1] /= l6[2];
-    l6[2] = 0.0;
-
     p6 = cross(l5,l6);
+
+    p4[0] /= p4[2];
+    p4[1] /= p4[2];
+    p4[2] = 1.0;
+
+    p5[0] /= p5[2];
+    p5[1] /= p5[2];
+    p5[2] = 1.0;
+
     p6[0] /= p6[2];
     p6[1] /= p6[2];
-    p6[2] = 0.0;
+    p6[2] = 1.0;
+
+    p7[0] /= p7[2];
+    p7[1] /= p7[2];
+    p7[2] = 1.0;    
     //TODO-BLOCK-END
 
     /******** END TODO ********/
