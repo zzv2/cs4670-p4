@@ -46,8 +46,8 @@ void ImgView::computeCameraParameters()
 
     // TODO COMMENT THIS ******************************************
 
-    Vec3d horizon = cross(xV, yV);
     Vec3d l_reference = cross(zV, r);
+    Vec3d horizon = cross(xV, yV);
     Vec3d newP = cross(horizon, l_reference);
     newP /= newP[2];
     SVMPoint *np = new SVMPoint(newP[0], newP[1]);
@@ -62,10 +62,7 @@ void ImgView::computeCameraParameters()
     double r_x, r_y; //r projected onto ground plane
     ApplyHomography(r_x, r_y, H, refPointOffPlane->X, refPointOffPlane->Y, 0.0);
 
-    Vec3d gr = Vec3d(r_x,r_y,1.0); 
-    gr /= gr[2]; //image coordinates of r's projection onto the ground
-
-    SVMPoint *rproj = new SVMPoint(gr[0], gr[1]);
+    SVMPoint *rproj = new SVMPoint(r_x, r_y);
 
     rproj->X = refPointOffPlane->X;
     rproj->Y = refPointOffPlane->Y;
@@ -74,18 +71,18 @@ void ImgView::computeCameraParameters()
 
     (*rproj).known(true);
 
-    SVMPoint *vz = new SVMPoint(zV[0], zV[1]);
+    SVMPoint *zv = new SVMPoint(zV[0], zV[1]);
 
     // known point
     pntSelStack.push_back(rproj);
     // new point
-    pntSelStack.push_back(vz);
+    pntSelStack.push_back(zv);
     sameZPlane();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
 
-    x_cam = (*vz).X;
-    y_cam = (*vz).Y;
+    x_cam = (*zv).X;
+    y_cam = (*zv).Y;
     z_cam = (*np).Z;
 
 
