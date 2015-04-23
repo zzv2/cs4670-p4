@@ -140,11 +140,11 @@ void ConvertToPlaneCoordinate(const vector<SVMPoint>& points, vector<Vec3d>& bas
     for (int i = 0; i < numPoints; i++)
     {
         basisPts[i][0] = (basisPts[i][0] - umin)/(umax - umin);
-        basisPts[i][1] = (basisPts[i][1] - umin)/(umax - umin);
+        basisPts[i][1] = (basisPts[i][1] - vmin)/(vmax - vmin);
     }
 
-    uScale = 1/(umax - umin);
-    vScale = 1/(vmax - vmin);
+    uScale = 1.0/(umax - umin);
+    vScale = 1.0/(vmax - vmin);
     //TODO-BLOCK-END
     /******** END TODO ********/
 }
