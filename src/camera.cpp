@@ -44,8 +44,6 @@ void ImgView::computeCameraParameters()
     Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
     Vec3d r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, refPointOffPlane->w);
 
-    // TODO COMMENT THIS ******************************************
-
     Vec3d l_reference = cross(zV, r);
     Vec3d horizon = cross(xV, yV);
     Vec3d newP = cross(horizon, l_reference);
