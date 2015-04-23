@@ -23,7 +23,7 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     /******** BEGIN TODO ********/ 
     // Given the 2D positions of corners p0 and p2 of the face, compute the 2D positions of p1 and p3
     // Remember that this face is on a plane perpendicular to the plane x=0
-    // Store the results in variabsolveForOppositeCornersles 'u1, v1' and 'u3, v3'
+    // Store the results in variables 'u1, v1' and 'u3, v3'
 
     //TODO-BLOCK-BEGIN
 
@@ -32,7 +32,7 @@ void ImgView::solveForOppositeCorners(double u0, double v0, double u2, double v2
     Vec3d vy = Vec3d(yVanish.u, yVanish.v, 1.0);
     Vec3d vz = Vec3d(zVanish.u, zVanish.v, 1.0);
 
-    // Get the image coords for thsolveForOppositeCornerse known corners
+    // Get the image coords for the known corners
     Vec3d p0 = Vec3d(u0, v0, 1.0);
     Vec3d p2 = Vec3d(u2, v2, 1.0);
 
@@ -85,7 +85,25 @@ void ImgView::solveForOppositeFace(SVMSweep *sweep, double imgX, double imgY,
 	Vec3d p4, p5, p6, p7;
 
     //TODO-BLOCK-BEGIN
-    printf("TODO: %s:%d\n", __FILE__, __LINE__);
+    Vec3d xV = Vec3d(xVanish.u, xVanish.v, 1.0);
+    Vec3d yV = Vec3d(yVanish.u, yVanish.v, 1.0);
+    Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
+
+    Vec3d lm = cross(pMouse,xV);
+
+    Vec3d l1 = cross(p0, yV);
+    p4 = cross(l1,lm);
+
+    Vec3d l2 = cross(p1,yV);
+    p5 = cross(l2,lm);
+
+    Vec3d l3 = cross(p3,yV);
+    Vec3d l4 = cross(p4,zV);
+    p7 = cross(l3,l4);
+
+    Vec3d l5 = cross(p2,yV);
+    Vec3d l6 = cross(p5,zV);
+    p6 = cross(l5,l6);
     //TODO-BLOCK-END
 
     /******** END TODO ********/
