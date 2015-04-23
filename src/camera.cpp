@@ -38,7 +38,6 @@ void ImgView::computeCameraParameters()
 
     //TODO-BLOCK-BEGIN
     // compute height of camera
-    // save in zcam
     Vec3d xV = Vec3d(xVanish.u, xVanish.v, 1.0);
     Vec3d yV = Vec3d(yVanish.u, yVanish.v, 1.0);
     Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
