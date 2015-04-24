@@ -48,39 +48,69 @@ void ImgView::sameXY()
 
 
     //TODO-BLOCK-BEGIN
-	// todo - sign?
-	// todo - degenerative case?
-
-    // degenerate case slide 15 lec 19
-    // t = t_0
-    // you know v_z
-    // compute b with homography
 
 	Vec3d xV = Vec3d(xVanish.u, xVanish.v, 1.0);
 	Vec3d yV = Vec3d(yVanish.u, yVanish.v, 1.0);
 	Vec3d zV = Vec3d(zVanish.u, zVanish.v, 1.0);
 
-    // Compute the image coords of the point below the reference point on the plane
-    // This works because H takes (X,Y) on the plane (so Z = 0)
-    // whereas the real refPointOffPlane has Z != 0
-    double bu, bv;
-    ApplyHomography(bu, bv, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
-    Vec3d b = Vec3d(bu, bv, 1.0);
+    // These are needed for the cross-product calculation in either case
+    Vec3d t;
+    Vec3d b;
+    Vec3d r;
 
-    // The actual reference point's image coords
-    Vec3d r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0);
+    Vec3d b0;
 
-    // Project the known point down to the reference plane
-    ApplyHomography(bu, bv, H, knownPoint.X, knownPoint.Y, 1.0);
-	Vec3d b0 = Vec3d(bu, bv, 1.0);
+    // Handle the degenerate case
+    if (knownPoint.X == refPointOffPlane->X && knownPoint.Y == refPointOffPlane->Y)
+    {
+        t = Vec3d(newPoint.u, newPoint.v, 1.0); // "op of object""
+        r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0); // "reference point"
 
+        // "bottom of object", also the ref point projected down
+        double bu, bv;
+        ApplyHomography(bu, bv, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
+        b = Vec3d(bu, bv, 1.0);
+
+        // This is just needed for sign checking later on
+        ApplyHomography(bu, bv, H, knownPoint.X, knownPoint.Y, 1.0);
+        b0 = Vec3d(bu, bv, 1.0);
+    }
+     else
+    {
+        // Compute the image coords of the point below the reference point on the plane
+        // This works because H takes (X,Y) on the plane (so Z = 0)
+        // whereas the real refPointOffPlane has Z != 0
+        double bu, bv;
+        ApplyHomography(bu, bv, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
+        b = Vec3d(bu, bv, 1.0);
+
+        // The actual reference point's image coords
+        r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0);
+
+        // Project the known point down to the reference plane
+        ApplyHomography(bu, bv, H, knownPoint.X, knownPoint.Y, 1.0);
+        b0 = Vec3d(bu, bv, 1.0);
+
+
+        Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
+
+        Vec3d v = cross(cross(b, b0), cross(xV, yV));
+        t = cross(cross(v, t0), cross(r, b));
+
+        v /= v[2];
+        t /= t[2];        
+    }
+
+
+
+
+    // Handle sign
     // Check if going from the unknown point's image coords to the known point's
     // image coords passes the known point projected to Z = 0. If so, then 
     // the result has the opposite Z sign as the known point. If not, then it 
     // has the same z sign
     // To check this just find i = (knownPoint - b0) and j = (unknownPoint - b0)
     // if each of their coords have different signs, then it must cross b0
-    
     Vec3d knownPointVec = Vec3d(knownPoint.u, knownPoint.v, 1.0);
     Vec3d unknownPointVec = Vec3d(newPoint.u, newPoint.v, 1.0);
     Vec3d i = knownPointVec - b0;
@@ -97,14 +127,9 @@ void ImgView::sameXY()
          sign = (knownPoint.Z >= 0 ? 1.0 : -1.0);
     }
 
-	Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
 
-    Vec3d v = cross(cross(b, b0), cross(xV, yV));
-    Vec3d t = cross(cross(v, t0), cross(r, b));
 
-    v /= v[2];
-    t /= t[2];
-
+    // Find final value
     double cross_ratio = (t - b).length() * (zV - r).length()/((r - b).length() * (zV - t).length());
     double height = cross_ratio * referenceHeight;
     newPoint.X = knownPoint.X;
