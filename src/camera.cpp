@@ -57,7 +57,7 @@ void ImgView::computeCameraParameters()
 
     // apply homography
     double r_x, r_y; //r projected onto ground plane
-    ApplyHomography(r_x, r_y, H, refPointOffPlane->X, refPointOffPlane->Y, 0.0);
+    ApplyHomography(r_x, r_y, H, refPointOffPlane->X, refPointOffPlane->Y, 1.0);
 
     SVMPoint rproj = SVMPoint(r_x, r_y);
 
