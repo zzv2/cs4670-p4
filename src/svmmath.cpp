@@ -87,7 +87,15 @@ SVMPoint BestFitIntersect(const std::list<SVMLine> &lines, int imgWidth, int img
 
     double eval, evec[3];
     MinEig(A, eval, evec);
-    bestfit = SVMPoint(evec[0]/evec[2], evec[1]/evec[2]);
+    if (evec[2] != 0)
+    {
+        bestfit = SVMPoint(evec[0]/evec[2], evec[1]/evec[2]);
+    }
+     else
+    {
+        bestfit = SVMPoint(0, 1);
+    }
+    
 
     //TODO-BLOCK-END
     /******** END TODO ********/
@@ -112,9 +120,27 @@ void ConvertToPlaneCoordinate(const vector<SVMPoint>& points, vector<Vec3d>& bas
 
     /******** BEGIN TODO ********/
     //TODO-BLOCK-BEGIN
+    printf("ConvertToPlaneCoordinate called\n\n\n");
+
     Vec3d p = Vec3d(points[0].X, points[0].Y, points[0].Z);
-    Vec3d q = Vec3d(points[1].X, points[1].Y, points[1].Z);
-    Vec3d r = Vec3d(points[2].X, points[2].Y, points[2].Z);
+    Vec3d r = Vec3d(points[1].X, points[1].Y, points[1].Z);
+
+    Vec3d q;
+    double minDot = 1.0;
+    for (int i = 2; i < numPoints; i++)
+    {
+        Vec3d X = Vec3d(points[2].X, points[2].Y, points[2].Z);
+        Vec3d t1 = (p-r);
+        t1.normalize();
+        Vec3d t2 = (X-r);
+        t2.normalize();
+        double dot = t1 * t2;
+        if (dot <= minDot)
+        {
+            q= X;
+            minDot = dot;
+        }
+    }
 
     Vec3d ex = (p - r);
     ex.normalize();
@@ -131,10 +157,20 @@ void ConvertToPlaneCoordinate(const vector<SVMPoint>& points, vector<Vec3d>& bas
         Vec3d pt = Vec3d((origPt - r) * ex, (origPt - r) * ey, 1);
         basisPts.push_back(pt);
 
-        umin = min(umin, pt[0]);
-        umax = max(umax, pt[0]);
-        vmin = min(vmin, pt[1]);
-        vmax = max(vmax, pt[1]);
+        if (i == 0)
+        {
+            umin = pt[0];
+            umax = pt[0];
+            vmin = pt[1];
+            vmax = pt[1];
+        }
+         else
+        {
+            umin = min(umin, pt[0]);
+            umax = max(umax, pt[0]);
+            vmin = min(vmin, pt[1]);
+            vmax = max(vmax, pt[1]);
+        }
     }
 
     for (int i = 0; i < numPoints; i++)

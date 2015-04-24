@@ -143,7 +143,7 @@ void ImgView::find3DPositionsBox(SVMPoint *points[8])
 	// pntSelStack.  There are multiple ways to implement this function.
 
     //TODO-BLOCK-BEGIN
-    
+
     // point 1
     pntSelStack.push_back(points[0]);
     pntSelStack.push_back(points[1]);
@@ -180,16 +180,16 @@ void ImgView::find3DPositionsBox(SVMPoint *points[8])
     pntSelStack.pop_back();
     
     // point 6
-    pntSelStack.push_back(points[5]);
+    pntSelStack.push_back(points[2]);
     pntSelStack.push_back(points[6]);
-    sameXY();
+    sameZPlane();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
     
     // point 7
-    pntSelStack.push_back(points[4]);
+    pntSelStack.push_back(points[2]);
     pntSelStack.push_back(points[7]);
-    sameXY();
+    sameZPlane();
     pntSelStack.pop_back();
     pntSelStack.pop_back();
 
