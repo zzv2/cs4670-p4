@@ -70,17 +70,34 @@ void ImgView::sameXY()
     // The actual reference point's image coords
     Vec3d r = Vec3d(refPointOffPlane->u, refPointOffPlane->v, 1.0);
 
-	Vec3d b0 = Vec3d(knownPoint.u, knownPoint.v, 1.0);
-	Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
+    // Project the known point down to the reference plane
+    ApplyHomography(bu, bv, H, knownPoint.X, knownPoint.Y, 1.0);
+	Vec3d b0 = Vec3d(bu, bv, 1.0);
 
-    int inversionFactor = 1;
-    if ((b0-b).length() > (t0-b).length())
+    // Check if going from the unknown point's image coords to the known point's
+    // image coords passes the known point projected to Z = 0. If so, then 
+    // the result has the opposite Z sign as the known point. If not, then it 
+    // has the same z sign
+    // To check this just find i = (knownPoint - b0) and j = (unknownPoint - b0)
+    // if each of their coords have different signs, then it must cross b0
+    
+    Vec3d knownPointVec = Vec3d(knownPoint.u, knownPoint.v, 1.0);
+    Vec3d unknownPointVec = Vec3d(newPoint.u, newPoint.v, 1.0);
+    Vec3d i = knownPointVec - b0;
+    Vec3d j = unknownPointVec - b0;
+    double sign;
+
+    // this checks if either coord has a diff sign
+    if ((int)(i[0] * j[0]) < 0 || (int)(i[1] * j[1]) < 0) // needs int casts because of weird -0.0 issues
     {
-        Vec3d tmp = b0;
-        b0 = t0;
-        t0 = tmp;
-        inversionFactor = -1;
+        sign = (knownPoint.Z >= 0 ? -1.0 : 1.0);
     }
+     else
+    {
+         sign = (knownPoint.Z >= 0 ? 1.0 : -1.0);
+    }
+
+	Vec3d t0 = Vec3d(newPoint.u, newPoint.v, 1.0);
 
     Vec3d v = cross(cross(b, b0), cross(xV, yV));
     Vec3d t = cross(cross(v, t0), cross(r, b));
@@ -92,7 +109,7 @@ void ImgView::sameXY()
     double height = cross_ratio * referenceHeight;
     newPoint.X = knownPoint.X;
     newPoint.Y = knownPoint.Y;
-    newPoint.Z = knownPoint.Z + height * inversionFactor/** ((b0[0] < t[0] ? 1 : -1))*/;
+    newPoint.Z = height * sign;
     //TODO-BLOCK-END
 	/******** END TODO ********/
 
